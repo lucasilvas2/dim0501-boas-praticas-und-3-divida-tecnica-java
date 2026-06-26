@@ -107,10 +107,6 @@ public class Estoque {
     //     } catch (Exception e) {}
     // }
 
-    static void relatorio_vendas() {
-        // TODO: implementar de verdade
-    }
-
     static String gerarHashSha256(String valor) {
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
