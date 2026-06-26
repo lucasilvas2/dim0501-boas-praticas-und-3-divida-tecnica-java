@@ -160,3 +160,100 @@ static String gerarHashSha256(String valor) {
 A senha administrativa deixou de existir em texto puro no código-fonte e passou a ser comparada por hash. O valor esperado agora vem da variável de ambiente `SENHA_ADMIN_HASH`, e o programa calcula o SHA-256 da senha informada pelo usuário para comparar com o valor externo. Se a variável não estiver configurada, o acesso administrativo é bloqueado com mensagem explícita.
 
 Essa solução é uma mitigação intencional para o escopo atual do sistema. Ela reduz a exposição imediata da credencial e melhora a organização da configuração, mas ainda não substitui uma autenticação robusta. A evolução natural é migrar essa responsabilidade para um banco de dados com armazenamento seguro de credenciais, política de acesso e fluxo próprio de autenticação quando o sistema passar a ter essa infraestrutura.
+
+
+### Item 2 — `D28` Regra de desconto duplicada
+
+**Localização:** `Estoque.java` / métodos `vender()` e `calcular_total()`
+
+**Antes:**
+
+```java
+static double vender(String nome, int quantidade) {
+    for (int i = 0; i < produtos.size(); i++) {
+        if (produtos.get(i).nome.equals(nome)) {
+            if (produtos.get(i).qtd >= quantidade) {
+                produtos.get(i).qtd = produtos.get(i).qtd - quantidade;
+                double total = produtos.get(i).preco * quantidade;
+                // desconto pra compras grandes
+                if (total > 100) {
+                    total = total - total * 0.1;
+                }
+                System.out.println("Venda realizada. Total: " + total);
+                return total;
+            } else {
+                System.out.println("Estoque insuficiente");
+                return 0;
+            }
+        }
+    }
+    System.out.println("Produto nao encontrado");
+    return 0;
+}
+
+// calcula o total de uma compra (usado no relatorio)
+static double calcular_total(double preco, int quantidade) {
+    double t = preco * quantidade;
+    if (t > 200) {              // limite diferente do usado em vender()
+        t = t - t * 0.15;       // desconto diferente do usado em vender()
+    }
+    return t;
+}
+```
+
+**Depois:**
+
+```java
+static final double LIMITE_DESCONTO_VENDA = 100;
+static final double PERCENTUAL_DESCONTO_VENDA = 0.1;
+static final RegraDesconto REGRA_DESCONTO_VENDA =
+        new RegraDesconto(LIMITE_DESCONTO_VENDA, PERCENTUAL_DESCONTO_VENDA);
+
+static class RegraDesconto {
+    final double limite;
+    final double percentual;
+
+    RegraDesconto(double limite, double percentual) {
+        this.limite = limite;
+        this.percentual = percentual;
+    }
+}
+
+static double calcular_total_bruto(double precoUnitario, int quantidade) {
+    return precoUnitario * quantidade;
+}
+
+static double aplicar_desconto(double totalBruto, RegraDesconto regraDesconto) {
+    if (totalBruto > regraDesconto.limite) {
+        return totalBruto - totalBruto * regraDesconto.percentual;
+    }
+    return totalBruto;
+}
+
+static double vender(String nome, int quantidade) {
+    for (int i = 0; i < produtos.size(); i++) {
+        if (produtos.get(i).nome.equals(nome)) {
+            if (produtos.get(i).qtd >= quantidade) {
+                produtos.get(i).qtd = produtos.get(i).qtd - quantidade;
+                double totalBruto = calcular_total_bruto(produtos.get(i).preco, quantidade);
+                double total = aplicar_desconto(totalBruto, REGRA_DESCONTO_VENDA);
+                System.out.println("Venda realizada. Total: " + total);
+                return total;
+            } else {
+                System.out.println("Estoque insuficiente");
+                return 0;
+            }
+        }
+    }
+    System.out.println("Produto nao encontrado");
+    return 0;
+}
+```
+
+**Explicação:**
+
+A regra de desconto agora fica em um único lugar. Antes, o método `vender()` tinha seus próprios valores fixos no corpo do código. Depois da alteração, ele apenas calcula o total bruto e chama `aplicar_desconto()`, usando a regra definida em `REGRA_DESCONTO_VENDA`.
+
+O método `calcular_total()` foi removido porque a refatoração separou melhor as responsabilidades. O cálculo do valor bruto ficou em `calcular_total_bruto()`, e a aplicação do desconto ficou em `aplicar_desconto()`. Assim, cada método passou a fazer uma parte menor e mais clara do processo.
+
+Com essa mudança, o limite de `200` e o desconto de `15%` que estavam em `calcular_total()` também saíram do código. Como não existe documentação nem outro uso no sistema que confirme que esses valores eram uma regra válida, eles não foram mantidos como regra ativa. Mesmo assim, a informação continua registrada no bloco "Antes" para deixar claro qual era a divergência encontrada.

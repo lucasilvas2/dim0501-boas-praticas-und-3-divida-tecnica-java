@@ -12,6 +12,10 @@ import java.util.Date;   // (nao usado)
 public class Estoque {
 
     static final String CHAVE_ENV_SENHA_ADMIN_HASH = "SENHA_ADMIN_HASH";
+    static final double LIMITE_DESCONTO_VENDA = 100;
+    static final double PERCENTUAL_DESCONTO_VENDA = 0.1;
+    static final RegraDesconto REGRA_DESCONTO_VENDA =
+            new RegraDesconto(LIMITE_DESCONTO_VENDA, PERCENTUAL_DESCONTO_VENDA);
 
     static ArrayList<Produto> produtos = new ArrayList<>();
     static ArrayList<String> hist = new ArrayList<>();  // historico
@@ -20,6 +24,27 @@ public class Estoque {
         String nome;
         double preco;
         int qtd;
+    }
+
+    static class RegraDesconto {
+        final double limite;
+        final double percentual;
+
+        RegraDesconto(double limite, double percentual) {
+            this.limite = limite;
+            this.percentual = percentual;
+        }
+    }
+
+    static double calcular_total_bruto(double precoUnitario, int quantidade) {
+        return precoUnitario * quantidade;
+    }
+
+    static double aplicar_desconto(double totalBruto, RegraDesconto regraDesconto) {
+        if (totalBruto > regraDesconto.limite) {
+            return totalBruto - totalBruto * regraDesconto.percentual;
+        }
+        return totalBruto;
     }
 
     // funcao que adiciona produto
@@ -38,11 +63,8 @@ public class Estoque {
             if (produtos.get(i).nome.equals(nome)) {
                 if (produtos.get(i).qtd >= quantidade) {
                     produtos.get(i).qtd = produtos.get(i).qtd - quantidade;
-                    double total = produtos.get(i).preco * quantidade;
-                    // desconto pra compras grandes
-                    if (total > 100) {
-                        total = total - total * 0.1;
-                    }
+                    double totalBruto = calcular_total_bruto(produtos.get(i).preco, quantidade);
+                    double total = aplicar_desconto(totalBruto, REGRA_DESCONTO_VENDA);
                     System.out.println("Venda realizada. Total: " + total);
                     return total;
                 } else {
@@ -53,15 +75,6 @@ public class Estoque {
         }
         System.out.println("Produto nao encontrado");
         return 0;
-    }
-
-    // calcula o total de uma compra (usado no relatorio)
-    static double calcular_total(double preco, int quantidade) {
-        double t = preco * quantidade;
-        if (t > 200) {              // limite diferente do usado em vender()
-            t = t - t * 0.15;       // desconto diferente do usado em vender()
-        }
-        return t;
     }
 
     static void listar() {
