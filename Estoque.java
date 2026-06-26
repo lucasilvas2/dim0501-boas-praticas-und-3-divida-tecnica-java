@@ -16,6 +16,7 @@ public class Estoque {
     static final double PERCENTUAL_DESCONTO_VENDA = 0.1;
     static final RegraDesconto REGRA_DESCONTO_VENDA =
             new RegraDesconto(LIMITE_DESCONTO_VENDA, PERCENTUAL_DESCONTO_VENDA);
+    static final int LIMITE_ESTOQUE_BAIXO = 5;
 
     static ArrayList<Produto> produtos = new ArrayList<>();
     static ArrayList<String> hist = new ArrayList<>();  // historico
@@ -88,7 +89,7 @@ public class Estoque {
     static void relatorio_estoque_baixo() {
         System.out.println("=== ESTOQUE BAIXO ===");
         for (int i = 0; i < produtos.size(); i++) {
-            if (produtos.get(i).qtd < 5) {   // estoque baixo
+            if (produtos.get(i).qtd < LIMITE_ESTOQUE_BAIXO) {
                 System.out.println(produtos.get(i).nome + " esta com estoque baixo ("
                         + produtos.get(i).qtd + ")");
             }
