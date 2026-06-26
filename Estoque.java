@@ -125,6 +125,28 @@ public class Estoque {
         }
     }
 
+    static double lerDouble(Scanner sc, String mensagem) {
+        while (true) {
+            System.out.print(mensagem);
+            try {
+                return Double.parseDouble(sc.next());
+            } catch (NumberFormatException e) {
+                System.out.println("Valor invalido. Digite um numero valido.");
+            }
+        }
+    }
+
+    static int lerInt(Scanner sc, String mensagem) {
+        while (true) {
+            System.out.print(mensagem);
+            try {
+                return Integer.parseInt(sc.next());
+            } catch (NumberFormatException e) {
+                System.out.println("Valor invalido. Digite um numero inteiro valido.");
+            }
+        }
+    }
+
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
         String senhaAdminHash = System.getenv(CHAVE_ENV_SENHA_ADMIN_HASH);
@@ -135,16 +157,13 @@ public class Estoque {
             if (op.equals("1")) {
                 System.out.print("Nome: ");
                 String n = sc.next();
-                System.out.print("Preco: ");
-                double p = Double.parseDouble(sc.next());   // quebra se digitar texto
-                System.out.print("Qtd: ");
-                int q = Integer.parseInt(sc.next());        // quebra se digitar texto
+                double p = lerDouble(sc, "Preco: ");
+                int q = lerInt(sc, "Qtd: ");
                 add(n, p, q);
             } else if (op.equals("2")) {
                 System.out.print("Nome do produto: ");
                 String n = sc.next();
-                System.out.print("Quantidade: ");
-                int q = Integer.parseInt(sc.next());
+                int q = lerInt(sc, "Quantidade: ");
                 vender(n, q);
             } else if (op.equals("3")) {
                 listar();
