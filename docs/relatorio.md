@@ -123,3 +123,40 @@ O critério `impacto ÷ esforço` favorece primeiro os itens com maior retorno p
 - `D24`: entradas inválidas não devem encerrar o programa
 - `D27`: os cenários principais devem ter testes automatizados
 - `D30`: o `main()` deve delegar responsabilidades para métodos menores
+
+## 6. Itens Quitados (Antes vs Depois)
+### Item 1 — `D02` Credencial administrativa fixa no código
+
+**Localização:** `Estoque.java` / constante `SENHA_ADMIN`
+
+**Antes:**
+
+```java
+static final String CHAVE_ENV_SENHA_ADMIN_HASH = "SENHA_ADMIN_HASH";
+```
+
+**Depois:**
+
+```java
+static final String CHAVE_ENV_SENHA_ADMIN_HASH = "SENHA_ADMIN_HASH";
+
+static String gerarHashSha256(String valor) {
+    try {
+        MessageDigest digest = MessageDigest.getInstance("SHA-256");
+        byte[] hash = digest.digest(valor.getBytes(StandardCharsets.UTF_8));
+        StringBuilder hex = new StringBuilder();
+        for (byte b : hash) {
+            hex.append(String.format("%02x", b));
+        }
+        return hex.toString();
+    } catch (NoSuchAlgorithmException e) {
+        throw new IllegalStateException("Algoritmo de hash indisponivel", e);
+    }
+}
+```
+
+**Explicação:**
+
+A senha administrativa deixou de existir em texto puro no código-fonte e passou a ser comparada por hash. O valor esperado agora vem da variável de ambiente `SENHA_ADMIN_HASH`, e o programa calcula o SHA-256 da senha informada pelo usuário para comparar com o valor externo. Se a variável não estiver configurada, o acesso administrativo é bloqueado com mensagem explícita.
+
+Essa solução é uma mitigação intencional para o escopo atual do sistema. Ela reduz a exposição imediata da credencial e melhora a organização da configuração, mas ainda não substitui uma autenticação robusta. A evolução natural é migrar essa responsabilidade para um banco de dados com armazenamento seguro de credenciais, política de acesso e fluxo próprio de autenticação quando o sistema passar a ter essa infraestrutura.

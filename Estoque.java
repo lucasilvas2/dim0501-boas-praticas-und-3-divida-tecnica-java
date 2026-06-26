@@ -3,12 +3,15 @@
 // autor: equipe antiga
 
 import java.util.ArrayList;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Scanner;
 import java.util.Date;   // (nao usado)
 
 public class Estoque {
 
-    static String SENHA_ADMIN = "1234";  // senha do admin
+    static final String CHAVE_ENV_SENHA_ADMIN_HASH = "SENHA_ADMIN_HASH";
 
     static ArrayList<Produto> produtos = new ArrayList<>();
     static ArrayList<String> hist = new ArrayList<>();  // historico
@@ -94,8 +97,23 @@ public class Estoque {
         // TODO: implementar de verdade
     }
 
+    static String gerarHashSha256(String valor) {
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] hash = digest.digest(valor.getBytes(StandardCharsets.UTF_8));
+            StringBuilder hex = new StringBuilder();
+            for (byte b : hash) {
+                hex.append(String.format("%02x", b));
+            }
+            return hex.toString();
+        } catch (NoSuchAlgorithmException e) {
+            throw new IllegalStateException("Algoritmo de hash indisponivel", e);
+        }
+    }
+
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
+        String senhaAdminHash = System.getenv(CHAVE_ENV_SENHA_ADMIN_HASH);
         while (true) {
             System.out.println("\n1-Cadastrar  2-Vender  3-Listar  4-Estoque baixo  5-Admin  0-Sair");
             System.out.print("Opcao: ");
@@ -121,7 +139,9 @@ public class Estoque {
             } else if (op.equals("5")) {
                 System.out.print("Senha: ");
                 String s = sc.next();
-                if (s.equals(SENHA_ADMIN)) {
+                if (senhaAdminHash == null || senhaAdminHash.isBlank()) {
+                    System.out.println("Configuracao administrativa ausente");
+                } else if (gerarHashSha256(s).equals(senhaAdminHash)) {
                     System.out.println("Acesso liberado");
                 } else {
                     System.out.println("Senha errada");
