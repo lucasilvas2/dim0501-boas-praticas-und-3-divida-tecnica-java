@@ -1,3 +1,21 @@
+# Relatório Técnico — Dívida Técnica
+
+## 1. Identificação do Grupo
+
+**Integrante:** Lucas Silva de Oliveira
+
+**Linguagem utilizada:** Java
+
+**Link do repositório Git:** <https://github.com/lucasilvas2/dim0501-boas-praticas-und-3-divida-tecnica-java>
+
+## 2. Descrição do Sistema
+
+O projeto apresenta um sistema de controle de estoque e vendas para um comercio. Permitindo cadastrar produtos com nome, preço e quantidade disponível, registrar vendas com a baixa dos itens no estoque e calcular o valor total da compra, incluindo a aplicação de desconto quando necessário.
+O sistema também permite listar os produtos cadastrados e emitir um relatório dos itens com estoque baixo. Com um conjunto de funções básicas para acompanhar os produtos do estoque e facilitar nas atividades diárias de venda e reposição.
+O sistema pode parecer simples, mas pode ser utilizado no contexto de microempreendedores que estão iniciando a sua operação, auxiliando no gerenciamento e otimizando processos, o que pode garantir um crescimento mais tranquilo.
+
+## 3. Inventário e Classificação da Dívida Técnica
+
 | ID | Localização | Descrição do problema | Tipo da dívida | Esforço | Impacto | Custo |
 |----|-----------------|-----------------|-----------------|-----------------|-----------------|-----------------|
 |D01| `Estoque.java` / import da `Date` | Importação sem uso | Marcadores e código morto | 1 | 1 | 1 |
