@@ -11,7 +11,9 @@
 ## 2. Descrição do Sistema
 
 O projeto apresenta um sistema de controle de estoque e vendas para um comercio. Permitindo cadastrar produtos com nome, preço e quantidade disponível, registrar vendas com a baixa dos itens no estoque e calcular o valor total da compra, incluindo a aplicação de desconto quando necessário.
+
 O sistema também permite listar os produtos cadastrados e emitir um relatório dos itens com estoque baixo. Com um conjunto de funções básicas para acompanhar os produtos do estoque e facilitar nas atividades diárias de venda e reposição.
+
 O sistema pode parecer simples, mas pode ser utilizado no contexto de microempreendedores que estão iniciando a sua operação, auxiliando no gerenciamento e otimizando processos, o que pode garantir um crescimento mais tranquilo.
 
 ## 3. Inventário e Classificação da Dívida Técnica
@@ -275,3 +277,11 @@ A regra de desconto agora fica em um único lugar. Antes, o método `vender()` t
 O método `calcular_total()` foi removido porque a refatoração separou melhor as responsabilidades. O cálculo do valor bruto ficou em `calcular_total_bruto()`, e a aplicação do desconto ficou em `aplicar_desconto()`. Assim, cada método passou a fazer uma parte menor e mais clara do processo.
 
 Com essa mudança, o limite de `200` e o desconto de `15%` que estavam em `calcular_total()` também saíram do código. Como não existe documentação nem outro uso no sistema que confirme que esses valores eram uma regra válida, eles não foram mantidos como regra ativa. Mesmo assim, a informação continua registrada no bloco "Antes" para deixar claro qual era a divergência encontrada.
+
+## 7. Conclusão
+
+Este trabalho permitiu compreender que a dívida técnica não representa apenas problemas isolados no código, mas também decisões e atalhos que podem aumentar o custo de manutenção ao longo do tempo. Mais do que identificar esses débitos, foi necessário analisar o impacto, o esforço e o contexto de cada um para decidir o que deveria ser corrigido primeiro e o que poderia ser aceito por enquanto.
+
+No início, a quantidade de itens encontrados pode parecer extensa e até assustar. Porém, esse levantamento é importante para compreender melhor o projeto e perceber como o desenvolvimento está caminhando. Mesmo quando vários débitos estão localizados no mesmo trecho ou linha, registrá-los separadamente ajuda a entender suas causas e consequências. Também foi possível observar que, ao quitar um item prioritário, outros de menor prioridade podem ser resolvidos ao mesmo tempo, tornando a refatoração mais eficiente.
+
+A maior dificuldade esteve na priorização, pois nem sempre o problema mais visível é o mais importante. Foi preciso evitar a busca por um código perfeito e considerar quais mudanças realmente trariam benefícios para a segurança, a clareza e a evolução do sistema. Com isso, a visão sobre qualidade de código se tornou mais prática: um sistema de qualidade não é aquele sem nenhuma dívida, mas aquele em que os débitos são conhecidos, avaliados e tratados de forma consciente.
